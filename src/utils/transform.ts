@@ -2,6 +2,8 @@ import { always, applySpec, cond, equals, ifElse, is, isNil, multiply, path, pat
 import { bech32 } from 'bech32'
 
 import { Invoice, InvoiceStatus, InvoiceUnit } from '../@types/invoice'
+import { Relay } from '../@types/relay'
+import { RelayRequest } from '../@types/relay-request'
 import { User } from '../@types/user'
 
 export const toJSON = (input: any) => JSON.stringify(input)
@@ -176,4 +178,32 @@ export const fromOpenNodeInvoice = applySpec<Invoice>({
     toDate,
   ),
   rawResponse: toJSON,
+})
+
+export const fromDBRelay = applySpec<Relay>({
+  pubkey: pipe(prop('pubkey') as () => Buffer, fromBuffer),
+  senderPubkey: pipe(prop('pubkey') as () => Buffer, fromBuffer),
+  name: prop('name'),
+  url: prop('url'),
+  pricing: prop('pricing'),
+  description: prop('description'),
+  contactDetails: prop('contact_details'),
+  latitude: prop('latitude'),
+  longitude: prop('longitude'),
+  locationFormat: prop('location_format'),
+})
+
+export const fromDBRelayRequest = applySpec<RelayRequest>({
+  pubkey: pipe(prop('pubkey') as () => Buffer, fromBuffer),
+  senderPubkey: pipe(prop('sender_pubkey') as () => Buffer, fromBuffer),
+  name: prop('name'),
+  url: prop('url'),
+  pricing: prop('pricing'),
+  description: prop('description'),
+  contactDetails: prop('contact_details'),
+  latitude: prop('latitude'),
+  longitude: prop('longitude'),
+  locationFormat: prop('location_format'),
+  approvedAt: prop('approved_at'),
+  declinedAt: prop('declined_at'),
 })

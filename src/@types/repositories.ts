@@ -1,8 +1,9 @@
-import { PassThrough } from 'stream'
-
 import { DatabaseClient, EventId, Pubkey } from './base'
 import { DBEvent, Event } from './event'
 import { Invoice } from './invoice'
+import { PassThrough } from 'stream'
+import { Relay } from './relay'
+import { RelayRequest } from './relay-request'
 import { SubscriptionFilter } from './subscription'
 import { User } from './user'
 
@@ -40,7 +41,18 @@ export interface IInvoiceRepository {
 }
 
 export interface IUserRepository {
-  findByPubkey(pubkey: Pubkey, client?: DatabaseClient): Promise<User | undefined>
-  upsert(user: Partial<User>, client?: DatabaseClient): Promise<number>
-  getBalanceByPubkey(pubkey: Pubkey, client?: DatabaseClient): Promise<bigint>
+  findByPubkey(
+    pubkey: Pubkey,
+    client?: DatabaseClient
+  ): Promise<User | undefined>;
+  upsert(user: Partial<User>, client?: DatabaseClient): Promise<number>;
+  getBalanceByPubkey(pubkey: Pubkey, client?: DatabaseClient): Promise<bigint>;
+}
+
+export interface IRelayRepository {
+  findAllRelays(client?: DatabaseClient): Promise<Relay[]>;
+  createNewRelayRequest(
+    data: RelayRequest,
+    client?: DatabaseClient
+  ): Promise<RelayRequest | undefined>;
 }
