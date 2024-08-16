@@ -3,7 +3,7 @@ import { Pubkey } from './base'
 
 export interface RelayRequest {
   pubkey: Pubkey;
-  senderPubkey: Pubkey;
+  senderPubkey: Pubkey[];
   name: string;
   url: string;
   pricing: string;
@@ -18,8 +18,8 @@ export interface RelayRequest {
 
 export interface DBRelayRequest {
   id: string;
-  pubkey: Pubkey;
-  sender_pubkey: Pubkey;
+  pubkey: Buffer;
+  sender_pubkey: Buffer[];
   name: string;
   url: string;
   pricing: string;

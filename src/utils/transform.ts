@@ -1,7 +1,8 @@
-import { always, applySpec, cond, equals, ifElse, is, isNil, multiply, path, pathSatisfies, pipe, prop, propSatisfies, T } from 'ramda'
+import { always, applySpec, cond, equals, ifElse, is, isNil, map, multiply, path, pathSatisfies, pipe, prop, propSatisfies, T } from 'ramda'
 import { bech32 } from 'bech32'
 
 import { Invoice, InvoiceStatus, InvoiceUnit } from '../@types/invoice'
+import { Merchant } from '../@types/merchant'
 import { Relay } from '../@types/relay'
 import { RelayRequest } from '../@types/relay-request'
 import { User } from '../@types/user'
@@ -182,7 +183,7 @@ export const fromOpenNodeInvoice = applySpec<Invoice>({
 
 export const fromDBRelay = applySpec<Relay>({
   pubkey: pipe(prop('pubkey') as () => Buffer, fromBuffer),
-  senderPubkey: pipe(prop('pubkey') as () => Buffer, fromBuffer),
+  senderPubkey: pipe(prop('sender_pubkey') as () => Buffer[], map(fromBuffer)),
   name: prop('name'),
   url: prop('url'),
   pricing: prop('pricing'),
@@ -195,7 +196,7 @@ export const fromDBRelay = applySpec<Relay>({
 
 export const fromDBRelayRequest = applySpec<RelayRequest>({
   pubkey: pipe(prop('pubkey') as () => Buffer, fromBuffer),
-  senderPubkey: pipe(prop('sender_pubkey') as () => Buffer, fromBuffer),
+  senderPubkey: pipe(prop('sender_pubkey') as () => Buffer[], map(fromBuffer)),
   name: prop('name'),
   url: prop('url'),
   pricing: prop('pricing'),
@@ -206,4 +207,17 @@ export const fromDBRelayRequest = applySpec<RelayRequest>({
   locationFormat: prop('location_format'),
   approvedAt: prop('approved_at'),
   declinedAt: prop('declined_at'),
+})
+
+export const fromDBMerchant = applySpec<Merchant>({
+  pubkey: pipe(prop('pubkey') as () => Buffer, fromBuffer),
+  name: prop('name'),
+  description: prop('description'),
+  pricing: prop('pricing'),
+  contactDetails: prop('contact_details'),
+  latitude: prop('latitude'),
+  longitude: prop('longitude'),
+  balance: prop('balance'),
+  advertisedOn: prop('advertised_on'),
+  approvedAt: prop('approved_at'),
 })

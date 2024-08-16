@@ -2,7 +2,7 @@ exports.up = function (knex) {
   return knex.schema.createTable("relay_requests", (table) => {
     table.uuid("id").defaultTo(knex.raw("uuid_generate_v4()"));
     table.binary("pubkey").primary().notNullable().index();
-    table.binary("sender_pubkey").primary().notNullable().index();
+    table.specificType("sender_pubkey", "binary ARRAY").notNullable().index();
     table.text("name").notNullable();
     table.text("url").notNullable();
     table.text("pricing").notNullable();

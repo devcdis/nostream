@@ -8,7 +8,7 @@ export type IRelayLocationFormat = {
 
 export interface Relay {
   pubkey: Pubkey;
-  senderPubkey: Pubkey;
+  senderPubkey: Pubkey[];
   name: string;
   url: string;
   pricing: string;
@@ -21,8 +21,8 @@ export interface Relay {
 
 export interface DBRelay {
   id: string;
-  pubkey: Pubkey;
-  sender_pubkey: Pubkey;
+  pubkey: Buffer;
+  sender_pubkey: Buffer[];
   name: string;
   url: string;
   pricing: string;

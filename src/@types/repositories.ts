@@ -1,6 +1,7 @@
 import { DatabaseClient, EventId, Pubkey } from './base'
 import { DBEvent, Event } from './event'
 import { Invoice } from './invoice'
+import { Merchant } from './merchant'
 import { PassThrough } from 'stream'
 import { Relay } from './relay'
 import { RelayRequest } from './relay-request'
@@ -51,8 +52,20 @@ export interface IUserRepository {
 
 export interface IRelayRepository {
   findAllRelays(client?: DatabaseClient): Promise<Relay[]>;
-  createNewRelayRequest(
-    data: RelayRequest,
-    client?: DatabaseClient
-  ): Promise<RelayRequest | undefined>;
+  findByPubkey(pubkey: Pubkey, client?: DatabaseClient): Promise<Relay|undefined>
+  upsert(newRelay: Relay, client?: DatabaseClient): Promise<number>
+  delete(pubkey: Pubkey, client?: DatabaseClient): Promise<number>
+}
+
+export interface IRelayRequestRepository {
+  findAllRelayRequests(client?: DatabaseClient): Promise<RelayRequest[]>;
+  findByPubkey(pubkey: Pubkey, client?: DatabaseClient): Promise<RelayRequest|undefined>
+  upsert(newRelayRequest: RelayRequest, client?: DatabaseClient): Promise<number>
+  delete(pubkey: Pubkey, client?: DatabaseClient): Promise<number>
+}
+
+export interface IMerchantRepository {
+  findByPubkey(pubkey: Pubkey, client?: DatabaseClient): Promise<Merchant | undefined>
+  upsert(newMerchant: Merchant, client?: DatabaseClient): Promise<number>
+  delete(pubkey: Pubkey): Promise<number>
 }

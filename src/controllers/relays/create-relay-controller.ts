@@ -25,7 +25,7 @@ export class CreateRelaysController implements IController {
     // }
 
     try {
-      const relay = await this.relayRepository.createNewRelayRequest(request.body)
+      const relay = await this.relayRepository.upsert(request.body)
       response
         .status(200)
         .setHeader('content-type', 'text/plain; charset=utf8')

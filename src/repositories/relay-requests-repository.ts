@@ -1,38 +1,38 @@
 import { applySpec, map, omit, pipe, prop } from 'ramda'
 import { DatabaseClient, Pubkey } from '../@types/base'
-import { DBRelay, Relay } from '../@types/relay'
-import { fromDBRelay, toBuffer } from '../utils/transform'
+import { DBRelayRequest, RelayRequest } from '../@types/relay-request'
+import { fromDBRelayRequest, toBuffer } from '../utils/transform'
 import { createLogger } from '../factories/logger-factory'
-import { IRelayRepository } from '../@types/repositories'
+import { DBRelay } from '../@types/relay'
+import { IRelayRequestRepository } from '../@types/repositories'
 
+const debug = createLogger('relay-requests-repository')
 
-const debug = createLogger('relay-repository')
-
-export class RelayRepository implements IRelayRepository {
+export class RelayRequestRepository implements IRelayRequestRepository {
   public constructor(private readonly dbClient: DatabaseClient) {}
   public async findByPubkey(
       pubkey: Pubkey,
       client: DatabaseClient = this.dbClient
-    ): Promise<Relay | undefined> {
-      debug('find relay by pubkey %s', pubkey)
-      const [dbRelay] = await client<DBRelay>('relays')
+    ): Promise<RelayRequest | undefined> {
+      debug('find relay request by pubkey %s', pubkey)
+      const [dBRelayRequest] = await client<DBRelay>('relays')
           .where('pubkey', toBuffer(pubkey))
           .select()
 
-      if(!dbRelay) {
+      if(!dBRelayRequest) {
         return
       }
       
-      return fromDBRelay(dbRelay)
+      return fromDBRelayRequest(dBRelayRequest)
   }
   public async upsert(
-    newRelay: Relay, 
+    newRelayRequest: RelayRequest, 
     client: DatabaseClient = this.dbClient
   ): Promise<number> {
 
-    debug('upsert: %o', newRelay)
+    debug('upsert: %o', newRelayRequest)
 
-    const row = applySpec<DBRelay>({
+    const row = applySpec<DBRelayRequest>({
       pubkey: pipe(prop('pubkey'), toBuffer),
       sender_pubkey: pipe(prop('senderPubkey'), map(toBuffer)),
       name: prop('name'),
@@ -43,9 +43,11 @@ export class RelayRepository implements IRelayRepository {
       latitude: prop('latitude'),
       longitude: prop('longitude'),
       location_format: prop('locationFormat'),
-    })(newRelay)
+      approved_at: prop('approvedAt'),
+      declined_at: prop('declinedAt'),
+    })(newRelayRequest)
 
-    const query = client<DBRelay>('relays')
+    const query = client<DBRelayRequest>('relay_requests')
       .insert(row)
       .onConflict('pubkey')
       .merge(
@@ -65,20 +67,20 @@ export class RelayRepository implements IRelayRepository {
 
 
   public async delete(pubkey: Pubkey, client: DatabaseClient = this.dbClient): Promise<number> {
-    debug('deleting relay with pubkey %s', pubkey)
+    debug('deleting relay request with pubkey %s', pubkey)
 
-    return client('merchants')
+    return client('relay_requests')
         .where('pubkey', toBuffer(pubkey))
         .del()
     }
     
-    public async findAllRelays(
+    public async findAllRelayRequests(
       client: DatabaseClient = this.dbClient
-    ): Promise<Relay[]> {
-      debug('find all relays')
-      const relays = await client<DBRelay>('relays').select()
+    ): Promise<RelayRequest[]> {
+      debug('find all relay requests')
+      const relays = await client<DBRelayRequest>('relay_requests').select()
     
-      return relays.map(fromDBRelay)
+      return relays.map(fromDBRelayRequest)
     }
 
 
