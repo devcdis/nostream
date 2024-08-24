@@ -8,7 +8,7 @@ export type IRelayLocationFormat = {
 
 export interface Relay {
   pubkey: Pubkey;
-  senderPubkey: Pubkey[];
+  // senderPubkey: Pubkey[];
   name: string;
   url: string;
   pricing: string;
@@ -17,12 +17,13 @@ export interface Relay {
   latitude: number;
   longitude: number;
   locationFormat: IRelayLocationFormat;
+  approvedAt: Date;
 }
 
 export interface DBRelay {
   id: string;
   pubkey: Buffer;
-  sender_pubkey: Buffer[];
+  // sender_pubkey: Buffer[];
   name: string;
   url: string;
   pricing: string;
@@ -31,4 +32,5 @@ export interface DBRelay {
   latitude: number;
   longitude: number;
   location_format: IRelayLocationFormat;
+  approved_at: Date;
 }

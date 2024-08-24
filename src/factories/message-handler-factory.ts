@@ -1,4 +1,4 @@
-import { IEventRepository, IUserRepository } from '../@types/repositories'
+import { IEventRepository, IMerchantRepository, IRelayRequestRepository, IUserRepository } from '../@types/repositories'
 import { IncomingMessage, MessageType } from '../@types/messages'
 import { createSettings } from './settings-factory'
 import { EventMessageHandler } from '../handlers/event-message-handler'
@@ -11,13 +11,15 @@ import { UnsubscribeMessageHandler } from '../handlers/unsubscribe-message-handl
 export const messageHandlerFactory = (
   eventRepository: IEventRepository,
   userRepository: IUserRepository,
+  relayRequestRepository: IRelayRequestRepository,
+  merchantRepository: IMerchantRepository
 ) => ([message, adapter]: [IncomingMessage, IWebSocketAdapter]) => {
   switch (message[0]) {
     case MessageType.EVENT:
       {
         return new EventMessageHandler(
           adapter,
-          eventStrategyFactory(eventRepository),
+          eventStrategyFactory(eventRepository, merchantRepository, relayRequestRepository),
           userRepository,
           createSettings,
           slidingWindowRateLimiterFactory,

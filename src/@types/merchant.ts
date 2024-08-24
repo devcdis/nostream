@@ -10,7 +10,7 @@ export interface Merchant {
     longitude: number,
     balance: number,
     advertisedOn?: Date,
-    approvedAt?: Date
+    approvedTill?: Date
 }
 
 export interface DBMerchant {
@@ -23,5 +23,5 @@ export interface DBMerchant {
     longitude: number;
     balance: number;
     advertised_on?: Date;
-    approved_at?: Date;
+    approved_till?: Date;
 }

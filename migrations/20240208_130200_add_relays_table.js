@@ -12,6 +12,7 @@ exports.up = function (knex) {
     table.double("latitude").notNullable().index();
     table.double("longitude").notNullable().index();
     table.jsonb("location_format").notNullable();
+    table.date("approved_at").defaultTo(null);
   });
 };
 

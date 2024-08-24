@@ -1,4 +1,4 @@
-import { applySpec, map, omit, pipe, prop } from 'ramda'
+import { applySpec, omit, pipe, prop } from 'ramda'
 import { DatabaseClient, Pubkey } from '../@types/base'
 import { DBRelay, Relay } from '../@types/relay'
 import { fromDBRelay, toBuffer } from '../utils/transform'
@@ -34,7 +34,7 @@ export class RelayRepository implements IRelayRepository {
 
     const row = applySpec<DBRelay>({
       pubkey: pipe(prop('pubkey'), toBuffer),
-      sender_pubkey: pipe(prop('senderPubkey'), map(toBuffer)),
+      // sender_pubkey: pipe(prop('senderPubkey'), map(toBuffer)),
       name: prop('name'),
       url: prop('url'),
       pricing: prop('pricing'),
@@ -43,6 +43,7 @@ export class RelayRepository implements IRelayRepository {
       latitude: prop('latitude'),
       longitude: prop('longitude'),
       location_format: prop('locationFormat'),
+      approved_at: prop('approvedAt'),
     })(newRelay)
 
     const query = client<DBRelay>('relays')

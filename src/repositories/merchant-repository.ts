@@ -28,6 +28,59 @@ export class MerchantRepository implements IMerchantRepository {
         return fromDBMerchant(dbMerchant)
     }
 
+    public async acceptRequest(
+        pubkey: Pubkey,
+        approvedTill: Date,
+        balance: number,
+        client: DatabaseClient = this.dbClient,
+    ): Promise<number> {
+        debug('accepting request for merchant with pubkey %s', pubkey)
+
+        return client<DBMerchant>('merchants')
+            .where('pubkey', toBuffer(pubkey))
+            .update({
+                advertised_on: new Date(),
+                approved_till: approvedTill,
+                balance: balance,
+            })
+    }
+
+    public async rejectRequest(
+        pubkey: Pubkey,
+        client: DatabaseClient = this.dbClient
+    ) {
+        debug('declining request for merchant with pubkey %s', pubkey)
+
+        return this.delete(pubkey, client)
+    }
+    
+
+    public async findAllRequests(
+        client: DatabaseClient = this.dbClient
+    ): Promise<Merchant[]> {
+        debug('find all merchant requests')
+
+        const dbMerchants = await client<DBMerchant>('merchants')
+            .whereNull('advertised_on')
+            .select()
+
+        return dbMerchants.map(fromDBMerchant)
+    }
+
+    public async findAllApproved(
+        client: DatabaseClient = this.dbClient
+    ): Promise<Merchant[]> {
+        debug('find all approved merchants')
+
+        const dbMerchants = await client<DBMerchant>('merchants')
+            .whereNotNull('advertised_on')
+            .select()
+
+        return dbMerchants.map(fromDBMerchant)
+    }
+
+
+
 
     public async upsert(
         newMerchant: Merchant, 
@@ -45,7 +98,7 @@ export class MerchantRepository implements IMerchantRepository {
             longitude: prop('longitude'),
             balance: prop('balance'),
             advertised_on: prop('advertisedOn') ?? null,
-            approved_at: prop('approvedAt') ?? null,
+            approved_till: prop('approvedTill') ?? null,
         })(newMerchant)
 
         const query = client<DBMerchant>('merchants')
@@ -54,6 +107,9 @@ export class MerchantRepository implements IMerchantRepository {
             .merge(
                 omit([
                     'pubkey',
+                    'balance',
+                    'advertised_on',
+                    'approved_till',
                 ])(row)
             )
 
@@ -66,7 +122,7 @@ export class MerchantRepository implements IMerchantRepository {
 
         }
         
-        public delete(pubkey: string, client: DatabaseClient = this.dbClient): Promise<number> {
+    public async delete(pubkey: string, client: DatabaseClient = this.dbClient): Promise<number> {
             debug('deleting merchant with pubkey %s', pubkey)
 
             return client('merchants')

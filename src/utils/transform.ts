@@ -183,7 +183,7 @@ export const fromOpenNodeInvoice = applySpec<Invoice>({
 
 export const fromDBRelay = applySpec<Relay>({
   pubkey: pipe(prop('pubkey') as () => Buffer, fromBuffer),
-  senderPubkey: pipe(prop('sender_pubkey') as () => Buffer[], map(fromBuffer)),
+  // senderPubkey: pipe(prop('sender_pubkey') as () => Buffer[], map(fromBuffer)),
   name: prop('name'),
   url: prop('url'),
   pricing: prop('pricing'),
@@ -192,6 +192,7 @@ export const fromDBRelay = applySpec<Relay>({
   latitude: prop('latitude'),
   longitude: prop('longitude'),
   locationFormat: prop('location_format'),
+  approvedAt: prop('approved_at'),
 })
 
 export const fromDBRelayRequest = applySpec<RelayRequest>({
@@ -219,5 +220,18 @@ export const fromDBMerchant = applySpec<Merchant>({
   longitude: prop('longitude'),
   balance: prop('balance'),
   advertisedOn: prop('advertised_on'),
-  approvedAt: prop('approved_at'),
+  approvedTill: prop('approved_till'),
+})
+
+export const relayFromRelayRequest = applySpec<Relay>({
+  pubkey: prop('pubkey'),
+  name: prop('name'),
+  url: prop('url'),
+  pricing: prop('pricing'),
+  description: prop('description'),
+  contactDetails: prop('contactDetails'),
+  latitude: prop('latitude'),
+  longitude: prop('longitude'),
+  locationFormat: prop('locationFormat'),
+  approvedAt: prop('approvedAt'),
 })

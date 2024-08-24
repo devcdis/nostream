@@ -62,10 +62,17 @@ export interface IRelayRequestRepository {
   findByPubkey(pubkey: Pubkey, client?: DatabaseClient): Promise<RelayRequest|undefined>
   upsert(newRelayRequest: RelayRequest, client?: DatabaseClient): Promise<number>
   delete(pubkey: Pubkey, client?: DatabaseClient): Promise<number>
+  acceptRelayRequest(pubkey: Pubkey, client?: DatabaseClient): Promise<number>
+  rejectRelayRequest(pubkey: Pubkey, client?: DatabaseClient): Promise<number>
+  
 }
 
 export interface IMerchantRepository {
   findByPubkey(pubkey: Pubkey, client?: DatabaseClient): Promise<Merchant | undefined>
   upsert(newMerchant: Merchant, client?: DatabaseClient): Promise<number>
-  delete(pubkey: Pubkey): Promise<number>
+  delete(pubkey: Pubkey, client?: DatabaseClient): Promise<number>
+  acceptRequest(pubkey: Pubkey, approvedTill: Date, balance: number, client?: DatabaseClient): Promise<number>
+  rejectRequest(pubkey: Pubkey, client?: DatabaseClient)
+  findAllRequests(client?: DatabaseClient): Promise<Merchant[]>
+  findAllApproved(client?: DatabaseClient): Promise<Merchant[]>
 }

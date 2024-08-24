@@ -15,7 +15,7 @@ export class RelayRequestRepository implements IRelayRequestRepository {
       client: DatabaseClient = this.dbClient
     ): Promise<RelayRequest | undefined> {
       debug('find relay request by pubkey %s', pubkey)
-      const [dBRelayRequest] = await client<DBRelay>('relays')
+      const [dBRelayRequest] = await client<DBRelay>('relay_requests')
           .where('pubkey', toBuffer(pubkey))
           .select()
 
@@ -83,7 +83,27 @@ export class RelayRequestRepository implements IRelayRequestRepository {
       return relays.map(fromDBRelayRequest)
     }
 
+    public async acceptRelayRequest(
+      pubkey: Pubkey,
+      client: DatabaseClient = this.dbClient
+    ): Promise<number> {
+      debug('accept relay request with pubkey %s', pubkey)
 
+      return client('relay_requests')
+          .where('pubkey', toBuffer(pubkey))
+          .update({ approved_at: new Date() })
+    }
+
+    public async rejectRelayRequest(
+      pubkey: Pubkey,
+      client: DatabaseClient = this.dbClient
+    ): Promise<number> {
+      debug('decline relay request with pubkey %s', pubkey)
+
+      return client('relay_requests')
+          .where('pubkey', toBuffer(pubkey))
+          .update({ declined_at: new Date() })
+    }
 }
 
 

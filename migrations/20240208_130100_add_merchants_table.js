@@ -10,7 +10,7 @@ exports.up = function (knex) {
     table.double("longitude").notNullable().index();
     table.double("balance").defaultTo(0.0);
     table.date("advertised_on").defaultTo(null);
-    table.date("approved_at").defaultTo(null).index();
+    table.date("approved_till").defaultTo(null).index();
   });
 };
 
