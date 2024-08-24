@@ -64,7 +64,8 @@ export const autoAcceptRelayRequestsFactory = (): AutoAcceptRelayRequestWorker =
   const adapter = new WebSocketServerAdapter(
     server,
     webSocketServer,
-    webSocketAdapterFactory(eventRepository, userRepository, relayRequestRepository, merchantRepository),
+    webSocketAdapterFactory(eventRepository, userRepository, relayRequestRepository, 
+      merchantRepository, relayRepository),
     createSettings,
   )
 
