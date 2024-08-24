@@ -14,6 +14,7 @@ export interface RelayRequest {
   locationFormat: IRelayLocationFormat;
   approvedAt?: Date;
   declinedAt?: Date;
+  createdAt?: Date;
 }
 
 export interface DBRelayRequest {
@@ -30,4 +31,5 @@ export interface DBRelayRequest {
   location_format: IRelayLocationFormat;
   approved_at?: Date;
   declined_at?: Date;
+  created_at: Date;
 }

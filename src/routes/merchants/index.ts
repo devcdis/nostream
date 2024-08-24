@@ -14,9 +14,9 @@ merchantRouter
   .get('/', withController(createGetAllMerchantsController))
   .delete('/', withController(createDeleteMerchantController))
   .post('/', withController(createEditMerchantController))
-  .get('/', withController(createGetAllMerchantRequestsController))
-  .post('/', withController(createAcceptMerchantRequestController))
-  .post('/', withController(createRejectMerchantRequestController))
+  .get('/requests', withController(createGetAllMerchantRequestsController))
+  .post('/accept', withController(createAcceptMerchantRequestController))
+  .post('/decline', withController(createRejectMerchantRequestController))
 
 
 

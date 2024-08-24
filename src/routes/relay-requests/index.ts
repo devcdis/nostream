@@ -9,8 +9,8 @@ const relayRequestRouter = Router()
 
 relayRequestRouter
   .get('/', withController(createGetAllRelayRequestsController))
-  .post('', withController(createRejectRelayRequestController))
-  .post('', withController(createAcceptRelayRequestController))
+  .post('/decline', withController(createRejectRelayRequestController))
+  .post('/accept', withController(createAcceptRelayRequestController))
 
 
 // relayRouter

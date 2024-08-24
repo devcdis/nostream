@@ -8,6 +8,7 @@ export interface Info {
   name: string
   description: string
   pubkey: string
+  privatekey?: string
   contact: string
 }
 
