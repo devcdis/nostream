@@ -7,6 +7,7 @@ import { EventRepository } from '../repositories/event-repository'
 import http from 'http'
 import { MerchantRepository } from '../repositories/merchant-repository'
 import process from 'process'
+import { RelayRepository } from '../repositories/relay-repository'
 import { RelayRequestRepository } from '../repositories/relay-requests-repository'
 import { UserRepository } from '../repositories/user-repository'
 import { webSocketAdapterFactory } from './websocket-adapter-factory'
@@ -21,7 +22,7 @@ export const workerFactory = (): AppWorker => {
   const userRepository = new UserRepository(dbClient)
   const merchantRepository = new MerchantRepository(dbClient)
   const relayRequestRepository = new RelayRequestRepository(dbClient)
-
+  const relayRepository = new RelayRepository(dbClient)
   const settings = createSettings()
 
   const app = createWebApp()
@@ -62,7 +63,8 @@ export const workerFactory = (): AppWorker => {
   const adapter = new WebSocketServerAdapter(
     server,
     webSocketServer,
-    webSocketAdapterFactory(eventRepository, userRepository, relayRequestRepository, merchantRepository),
+    webSocketAdapterFactory(eventRepository, 
+      userRepository, relayRequestRepository, merchantRepository, relayRepository),
     createSettings,
   )
 

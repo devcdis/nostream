@@ -1,36 +1,61 @@
+import * as secp256k1 from '@noble/secp256k1'
 import { anyPass, equals, isNil, map, propSatisfies, uniqWith } from 'ramda'
 import { createEndOfStoredEventsNoticeMessage, createNoticeMessage, createOutgoingEventMessage } from '../utils/messages'
 import { IAbortable, IMessageHandler } from '../@types/message-handlers'
-import { isEventMatchingFilter, toNostrEvent } from '../utils/event'
+import { IEventRepository, IMerchantRepository, IRelayRepository } from '../@types/repositories'
+import { isEventMatchingFilter, serializeEvent, toNostrEvent } from '../utils/event'
 import { streamEach, streamEnd, streamFilter, streamMap } from '../utils/stream'
 import { SubscriptionFilter, SubscriptionId } from '../@types/subscription'
 // import { addAbortSignal } from 'stream'
+import { createHash } from 'crypto'
 import { createLogger } from '../factories/logger-factory'
+import { createSettings } from '../factories/settings-factory'
 import { Event } from '../@types/event'
-import { IEventRepository } from '../@types/repositories'
+import { EventKinds } from '../constants/base'
 import { IWebSocketAdapter } from '../@types/adapters'
 import { pipeline } from 'stream/promises'
-
 import { Settings } from '../@types/settings'
 import { SubscribeMessage } from '../@types/messages'
 import { WebSocketAdapterEvent } from '../constants/adapter'
-// import { createEvent } from '../../test/integration/features/helpers'
 
 const debug = createLogger('subscribe-message-handler')
 
+export async function createEvent(input: Partial<Event>, privkey: any): Promise<Event> {
+  const event: Event = {
+    pubkey: input.pubkey,
+    kind: input.kind,
+    created_at: input.created_at,
+    content: input.content ?? '',
+    tags: input.tags ?? [],
+  } as any
+
+  const id = createHash('sha256').update(
+    Buffer.from(JSON.stringify(serializeEvent(event)))
+  ).digest().toString('hex')
+
+  const sig = Buffer.from(
+    secp256k1.schnorr.signSync(id, privkey)
+  ).toString('hex')
+
+  event.id = id
+  event.sig = sig
+
+  return event
+}
+
 export class SubscribeMessageHandler implements IMessageHandler, IAbortable {
   //private readonly abortController: AbortController
-
+  
   public constructor(
     private readonly webSocket: IWebSocketAdapter,
     private readonly eventRepository: IEventRepository,
-    // private readonly merchantRepository: IMerchantRepository,
-    // private readonly relayRepository: IRelayRepository,
+    private readonly merchantRepository: IMerchantRepository,
+    private readonly relayRepository: IRelayRepository,
     private readonly settings: () => Settings,
   ) {
     //this.abortController = new AbortController()
   }
-
+  
   public abort(): void {
     //this.abortController.abort()
   }
@@ -38,19 +63,19 @@ export class SubscribeMessageHandler implements IMessageHandler, IAbortable {
   public async handleMessage(message: SubscribeMessage): Promise<void> {
     const subscriptionId = message[1]
     const filters = uniqWith(equals, message.slice(2)) as SubscriptionFilter[]
-
+    
     const reason = this.canSubscribe(subscriptionId, filters)
     if (reason) {
       debug('subscription %s with %o rejected: %s', subscriptionId, filters, reason)
       this.webSocket.emit(WebSocketAdapterEvent.Message, createNoticeMessage(`Subscription rejected: ${reason}`))
       return
     }
-
+    
     this.webSocket.emit(WebSocketAdapterEvent.Subscribe, subscriptionId, filters)
-
+    
     await this.fetchAndSend(subscriptionId, filters)
   }
-
+  
   private async fetchAndSend(subscriptionId: string, filters: SubscriptionFilter[]): Promise<void> {
     debug('fetching events for subscription %s with filters %o', subscriptionId, filters)
     const sendEvent = (event: Event) =>
@@ -58,26 +83,46 @@ export class SubscribeMessageHandler implements IMessageHandler, IAbortable {
     const sendEOSE = () =>
       this.webSocket.emit(WebSocketAdapterEvent.Message, createEndOfStoredEventsNoticeMessage(subscriptionId))
     const isSubscribedToEvent = SubscribeMessageHandler.isClientSubscribedToEvent(filters)
+    
+    const isRostr11000 = filters.some((filter) => filter.kinds?.includes(11000))
+    const isRostr11001 = filters.some((filter) => filter.kinds?.includes(11001))
+    const currentSettings = createSettings()
+    
+    
+    if (isRostr11001) {
+      const merchants = (await this.merchantRepository.findAllApproved()).filter((merchant) => {
+        const currentTime = new Date().getTime()
+        return merchant.approvedTill.getTime() > currentTime
+      })
 
-    // const isRostr11000 = filters.some((filter) => filter.kinds?.includes(11000))
-    // const isRostr11001 = filters.some((filter) => filter.kinds?.includes(11001))
+      const relays = await this.relayRepository.findAllRelays()
+      const content = JSON.stringify({'merchants': merchants, 'relays': relays})
+      const partialEvent: Partial<Event> = {
+        pubkey: currentSettings.info.pubkey,
+        content: content,
+        kind: EventKinds.RELAY_REQUEST,
+        tags: [],
+      }
+      const event = await createEvent(partialEvent, currentSettings.info.privatekey)
 
-    // const rostrEvent = null
-    // if (isRostr11000) {
-    //   const merchants = (await this.merchantRepository.findAllApproved()).filter((merchant, index, array) => {
-    //     const currentTime = new Date().getTime()
-    //     return merchant.approvedTill.getTime() > currentTime
-    //   })
+      sendEvent(event)
+      sendEOSE()
 
-    //   const relays = await this.relayRepository.findAllRelays()
-      // const content = JSON.stringify({'merchants': })
-      // const event = createEvent()
-      
-      
-    // } else if (isRostr11001) {
-    //   // rostrEvent = await this.eventRepository.findRostr11001()
-    // }
+    } else if(isRostr11000) {
+        const relays = await this.relayRepository.findAllRelays()
+        const content = JSON.stringify({'relays': relays})
+        const partialEvent: Partial<Event> = {
+          pubkey: currentSettings.info.pubkey,
+          content: content,
+          kind: EventKinds.RELAY_REQUEST,
+          tags: [],
+        }
+        const event = await createEvent(partialEvent, currentSettings.info.privatekey)
 
+        sendEvent(event)
+        sendEOSE()
+
+    }
 
     const findEvents = this.eventRepository.findByFilters(filters).stream()
 
