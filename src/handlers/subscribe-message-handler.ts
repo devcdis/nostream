@@ -7,7 +7,7 @@ import { isEventMatchingFilter, serializeEvent, toNostrEvent } from '../utils/ev
 import { streamEach, streamEnd, streamFilter, streamMap } from '../utils/stream'
 import { SubscriptionFilter, SubscriptionId } from '../@types/subscription'
 // import { addAbortSignal } from 'stream'
-import { createHash } from 'crypto'
+import { createHash, Hash } from 'crypto'
 import { createLogger } from '../factories/logger-factory'
 import { createSettings } from '../factories/settings-factory'
 import { Event } from '../@types/event'
@@ -19,6 +19,12 @@ import { SubscribeMessage } from '../@types/messages'
 import { WebSocketAdapterEvent } from '../constants/adapter'
 
 const debug = createLogger('subscribe-message-handler')
+
+
+
+secp256k1.utils.sha256Sync = (...messages: Uint8Array[]) =>
+  messages.reduce((hash: Hash, message: Uint8Array) => hash.update(message),  createHash('sha256')).digest()
+
 
 export async function createEvent(input: Partial<Event>, privkey: any): Promise<Event> {
   const event: Event = {
