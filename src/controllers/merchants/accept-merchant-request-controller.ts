@@ -30,7 +30,7 @@ export class AcceptMerchantRequestController implements IController {
       debug('Failed to accept merchant request with error: %s', error.stack)
       response
         .status(500)
-        .setHeader('content-type', 'text/plain; charset=utf8')
+        .setHeader('content-type', 'application/json; charset=utf8')
         .send('Error occurred on our server while accepting merchant request.')
       return
     }

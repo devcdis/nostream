@@ -93,7 +93,7 @@ export class MerchantRepository implements IMerchantRepository {
             name: prop('name'),
             description: prop('description'),
             pricing: prop('pricing'),
-            contact_details: prop('contactDetail'),
+            contact_details: prop('contactDetails'),
             latitude: prop('latitude'),
             longitude: prop('longitude'),
             balance: prop('balance'),
@@ -107,19 +107,10 @@ export class MerchantRepository implements IMerchantRepository {
             .merge(
                 omit([
                     'pubkey',
-                    'balance',
-                    'advertised_on',
-                    'approved_till',
                 ])(row)
-            )
+            ).then(prop('rowCount') as () => number)
 
-        return {
-            then: <T1, T2>(onfulfilled: (value: number) => T1 | PromiseLike<T1>, onrejected: (reason: any) => T2 | PromiseLike<T2>) => query.then(prop('rowCount') as () => number).then(onfulfilled, onrejected),
-            catch: <T>(onrejected: (reason: any) => T | PromiseLike<T>) => query.catch(onrejected),
-            toString: (): string => query.toString(),
-            } as Promise<number>
-        
-
+            return query
         }
         
     public async delete(pubkey: string, client: DatabaseClient = this.dbClient): Promise<number> {

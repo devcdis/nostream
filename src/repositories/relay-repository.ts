@@ -53,22 +53,15 @@ export class RelayRepository implements IRelayRepository {
         omit([
             'pubkey',
         ])(row)
-    )
+    ).then(prop('rowCount') as () => number)
 
-    return {
-      then: <T1, T2>(onfulfilled: (value: number) => T1 | PromiseLike<T1>, onrejected: (reason: any) => T2 | PromiseLike<T2>) => query.then(prop('rowCount') as () => number).then(onfulfilled, onrejected),
-      catch: <T>(onrejected: (reason: any) => T | PromiseLike<T>) => query.catch(onrejected),
-      toString: (): string => query.toString(),
-      } as Promise<number>
-
-
+    return query
   }
 
 
   public async delete(pubkey: Pubkey, client: DatabaseClient = this.dbClient): Promise<number> {
     debug('deleting relay with pubkey %s', pubkey)
-
-    return client('merchants')
+    return client('relays')
         .where('pubkey', toBuffer(pubkey))
         .del()
     }

@@ -78,7 +78,7 @@ export class RelayRequestRepository implements IRelayRequestRepository {
       client: DatabaseClient = this.dbClient
     ): Promise<RelayRequest[]> {
       debug('find all relay requests')
-      const relays = await client<DBRelayRequest>('relay_requests').select()
+      const relays = await client<DBRelayRequest>('relay_requests').whereNull('approved_at').select()
     
       return relays.map(fromDBRelayRequest)
     }

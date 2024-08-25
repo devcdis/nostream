@@ -5,7 +5,7 @@ export interface Merchant {
     name: string,
     description: string,
     pricing: string,
-    contact_details: Record<string, string | number>,
+    contactDetails: Record<string, string | number>,
     latitude: number,
     longitude: number,
     balance: number,

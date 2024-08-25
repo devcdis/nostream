@@ -27,7 +27,7 @@ export class RostrEventStrategy9001 implements IEventStrategy<Event, Promise<voi
                 name: content['name'],
                 description: content['description'],
                 pricing: content['pricing'],
-                contact_details: content['contact_details'],
+                contactDetails: content['contact_details'],
                 latitude: content['latitude'],
                 longitude: content['longitude'],
                 balance: 0,

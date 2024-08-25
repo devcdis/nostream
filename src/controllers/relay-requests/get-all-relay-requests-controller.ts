@@ -20,7 +20,6 @@ export class GetAllRelayRequestsController implements IController {
         .send(relays)
       return
     } catch (error) {
-      console.log({error})
       debug('Failed to fetch relay requests with error: %s', error.stack)
       response
         .status(500)
