@@ -2,7 +2,7 @@ exports.up = function (knex) {
   return knex.schema.createTable('relay_requests', (table) => {
     table.uuid('id').defaultTo(knex.raw('uuid_generate_v4()'))
     table.binary('pubkey').primary().notNullable().index()
-    table.specificType('sender_pubkey', 'binary ARRAY').notNullable().index()
+    table.specificType('sender_pubkey', 'bytea ARRAY').notNullable().index()
     table.text('name').notNullable()
     table.text('url').notNullable()
     table.text('pricing').notNullable()
@@ -11,9 +11,9 @@ exports.up = function (knex) {
     table.double('latitude').notNullable().index()
     table.double('longitude').notNullable().index()
     table.jsonb('location_format').notNullable()
-    table.date('approved_at').defaultTo(null).index()
-    table.date('declined_at').defaultTo(null).index()
-    table.date('created_at').defaultTo('CURRENT_TIMESTAMP').index()
+    table.timestamp('approved_at').defaultTo(null).index()
+    table.timestamp('declined_at').defaultTo(null).index()
+    table.timestamp('created_at').defaultTo(knex.fn.now()).index()
   })
 }
 

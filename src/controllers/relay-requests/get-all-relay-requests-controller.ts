@@ -16,14 +16,15 @@ export class GetAllRelayRequestsController implements IController {
       const relays = await this.relayRequestRepository.findAllRelayRequests()
       response
         .status(200)
-        .setHeader('content-type', 'text/plain; charset=utf8')
+        .setHeader('content-type', 'application/json; charset=utf8')
         .send(relays)
       return
     } catch (error) {
+      console.log({error})
       debug('Failed to fetch relay requests with error: %s', error.stack)
       response
         .status(500)
-        .setHeader('content-type', 'text/plain; charset=utf8')
+        .setHeader('content-type', 'application/json; charset=utf8')
         .send('Error occurred on our server while fetching relay requests.')
       return
     }

@@ -1,3 +1,4 @@
+import cors from 'cors'
 import express from 'express'
 import helmet from 'helmet'
 
@@ -8,6 +9,7 @@ export const createWebApp = () => {
   const app = express()
   app
     .disable('x-powered-by')
+    .use(cors({origin: 'http://localhost:5173', optionsSuccessStatus: 200 }))
     .use((req, res, next) => {
       const settings = createSettings()
 
@@ -27,7 +29,6 @@ export const createWebApp = () => {
         'style-src': ["'self'", 'https://cdn.jsdelivr.net/npm/'],
         'font-src': ["'self'", 'https://cdn.jsdelivr.net/npm/'],
       }
-
       return helmet.contentSecurityPolicy({ directives })(req, res, next)
     })
     .use('/favicon.ico', express.static('./resources/favicon.ico'))

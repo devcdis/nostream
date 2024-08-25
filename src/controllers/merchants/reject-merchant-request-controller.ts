@@ -17,13 +17,13 @@ export class RejectMerchantRequestController implements IController {
         await this.merchantRepository.rejectRequest(pubkey)
         response
           .status(200)
-          .setHeader('content-type', 'text/plain; charset=utf8')
-          .send(pubkey)
+          .setHeader('content-type', 'application/json; charset=utf8')
+          .send({id:pubkey})
     } catch (error) {
       debug('Failed to reject merchant request with error: %s', error.stack)
       response
         .status(500)
-        .setHeader('content-type', 'text/plain; charset=utf8')
+        .setHeader('content-type', 'application/json; charset=utf8')
         .send('Error occurred on our server while rejecting merchant request.')
       return
     }

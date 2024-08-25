@@ -17,8 +17,8 @@ export class DeleteRelayController implements IController {
         await this.relayRepository.delete(pubkey)
         response
           .status(200)
-          .setHeader('content-type', 'text/plain; charset=utf8')
-          .send(pubkey)
+          .setHeader('content-type', 'application/json; charset=utf8')
+          .send({id: pubkey})
     //   const relays = await this.relayRepository.findAllRelays()
     //   response
     //     .status(200)
@@ -29,7 +29,7 @@ export class DeleteRelayController implements IController {
       debug('Failed to delete relay with error: %s', error.stack)
       response
         .status(500)
-        .setHeader('content-type', 'text/plain; charset=utf8')
+        .setHeader('content-type', 'application/json; charset=utf8')
         .send('Error occurred on our server while deleting relay.')
       return
     }

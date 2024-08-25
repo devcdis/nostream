@@ -13,7 +13,6 @@ import relayRouter from './relays'
 import { rootRequestHandler } from '../handlers/request-handlers/root-request-handler'
 
 const router = express.Router()
-
 router.get('/', rootRequestHandler)
 router.get('/healthz', getHealthRequestHandler)
 router.get('/terms', getTermsRequestHandler)

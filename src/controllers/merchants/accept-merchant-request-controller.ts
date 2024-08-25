@@ -13,13 +13,13 @@ export class AcceptMerchantRequestController implements IController {
     debug('request headers: %o', request.headers)
 
     try {
-        const { pubkey, approvedTill, balance } = request.params
-        await this.merchantRepository.acceptRequest(pubkey, new Date(approvedTill), Number(balance))
+        const { pubkey, approved_till, balance } = request.body
+        await this.merchantRepository.acceptRequest(pubkey, new Date(approved_till), Number(balance))
 
         response
           .status(200)
-          .setHeader('content-type', 'text/plain; charset=utf8')
-          .send(pubkey)
+          .setHeader('content-type', 'application/json; charset=utf8')
+          .send({id: pubkey})
     //   const relays = await this.relayRepository.findAllRelays()
     //   response
     //     .status(200)

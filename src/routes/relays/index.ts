@@ -4,10 +4,9 @@ import { Router } from 'express'
 import { withController } from '../../handlers/request-handlers/with-controller-request-handler'
 
 const relayRouter = Router()
-
 relayRouter
   .get('/', withController(createGetAllRelaysController))
-  .delete('', withController(createDeleteRelayController))
+  .delete('/:pubkey', withController(createDeleteRelayController))
 
 
 // relayRouter

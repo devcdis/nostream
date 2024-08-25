@@ -12,11 +12,11 @@ const merchantRouter = Router()
 
 merchantRouter
   .get('/', withController(createGetAllMerchantsController))
-  .delete('/', withController(createDeleteMerchantController))
+  .delete('/:pubkey', withController(createDeleteMerchantController))
   .post('/', withController(createEditMerchantController))
   .get('/requests', withController(createGetAllMerchantRequestsController))
   .post('/accept', withController(createAcceptMerchantRequestController))
-  .post('/decline', withController(createRejectMerchantRequestController))
+  .post('/decline/:pubkey', withController(createRejectMerchantRequestController))
 
 
 
